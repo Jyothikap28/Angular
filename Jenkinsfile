@@ -57,4 +57,12 @@ pipeline {
             }
         }
     }
+    post{
+	success {
+ 	 echo "Pipeline executed successfully!!!"
+	}
+	failure {
+	 echo "pipeline failed fix and re-run it.."
+	}
+    }
 }
