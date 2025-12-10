@@ -5,11 +5,17 @@ pipeline {
     }
     environment {
         IMAGE_NAME='jyothikap28/test'
-        TAG='v1'
+        TAG="${env.BUILD_NUMBER}"
+    }
+    options {
+        skipDefaultCheckout()
+        disableConcurrentBuilds()
+        timestamps()
     }
     stages{
         stage("Code SCM"){
             steps{
+                echo " *** Fetching code form github repo *** "
                 git 'https://github.com/Jyothikap28/Angular.git'
             }
         }
@@ -38,6 +44,7 @@ pipeline {
         stage("Build docker image"){
             steps{
                 script{
+                  echo " *** Building docker image *** "
                   IMG=docker.build("${env.IMAGE_NAME}:${env.TAG}")
                 }
             }
@@ -45,6 +52,7 @@ pipeline {
         stage("push docker image to hub"){
             steps{
               script{
+                    echo " *** Pushing the docker image to docker hub *** "
                     IMG.push()
               }
             }
@@ -52,17 +60,23 @@ pipeline {
         stage("deploy to conatiner"){
             steps{
                 script{
-                    sh "docker run -d --name MYAPP -p 82:80 ${env.IMAGE_NAME}:${env.TAG}"
+                    echo " *** Deleting the existing container *** "
+                    sh "docker rm -f MYAPP || true"
+
+                    echo " ** Running new container ** "
+                    sh "docker run -d --name MYAPP -p 81:80 ${env.IMAGE_NAME}:${env.TAG}"
                 }
             }
         }
     }
     post{
-	success {
- 	 echo "Pipeline executed successfully!!!"
-	}
+	    success {
+ 	        echo "Pipeline executed successfully!!!"
+            echo "Version: ${TAG}"
+            echo "Image pushed : ${IMAGE}:${TAG}"
+	    }
 	failure {
-	 echo "pipeline failed fix and re-run it.."
-	}
+	     echo "pipeline failed fix and re-run it.."
+	    }
     }
 }
