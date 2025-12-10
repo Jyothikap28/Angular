@@ -73,7 +73,7 @@ pipeline {
 	    success {
  	        echo "Pipeline executed successfully!!!"
             echo "Version: ${TAG}"
-            echo "Image pushed : ${IMAGE}:${TAG}"
+            echo "Image pushed : ${IMAGE_NAME}:${TAG}"
 	    }
 	failure {
 	     echo "pipeline failed fix and re-run it.."
